@@ -1,38 +1,35 @@
-const { Builder } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
+const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
-const { json } = require('express');
 
 const title = ['PLAYER', 'MIN', 'FGM', 'FGA', 'FG%', '3PM',
   '3PA', '3P%', 'FTM', 'FTA', 'FT%', 'OREB',
   'DREB', 'REB', 'AST', 'STL', 'BLK', 'TO',
   'PF', 'PTS', '+/-'];
 
+const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
 const boxscore = async (url) => {
   try {
-    // 選擇 Chrome 瀏覽器並設定選項
-    const options = new chrome.Options();
-    // 設定為無介面模式
-    options.headless();
+    // 啟動 Puppeteer
+    const browser = await puppeteer.launch({
+      headless: 'new'
+    });
 
-    // 建立 Selenium WebDriver
-    const driver = new Builder()
-      .forBrowser('chrome')
-      .setChromeOptions(options)
-      .build();
+    // 開啟新的頁面
+    const page = await browser.newPage();
 
-    // 瀏覽器開啟
-    await driver.get(url);
+    // 前往指定網址
+    await page.goto(url);
 
-    // 等待網頁加載完成，可以使用 driver.sleep() 或 driver.wait() 方法 延遲 8 秒
-    await driver.sleep(8000);
+    await delay(5000);
+
+    // 等待網頁加載完成
+    await page.waitForSelector('table');
 
     // 取得 table 元素的 outerHTML
-    const getTables = await driver.findElements({ tagName: 'table' });
-    const tableHTML = await Promise.all(getTables.map(table => table.getAttribute('outerHTML')));
-
-    // start
-    console.log('start');
+    const tableHTML = await page.$$eval('table', tables => {
+      return tables.map(table => table.outerHTML);
+    });
 
     const $ = cheerio.load(tableHTML.join(''));
 
@@ -81,8 +78,9 @@ const boxscore = async (url) => {
       });
       returnData.push(result);
     });
-    // 瀏覽器關閉
-    await driver.quit();
+
+    // 關閉瀏覽器
+    await browser.close();
 
     return JSON.stringify(returnData);
   }
