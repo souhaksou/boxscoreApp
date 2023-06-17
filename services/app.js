@@ -32,10 +32,12 @@ const boxscore = async (url) => {
     // 前往指定網址
     await page.goto(url);
 
-    await delay(8000);
+    await page.waitForNavigation();
+
+    await delay(3000);
 
     // 等待網頁加載完成
-    await page.waitForSelector('table');
+    // await page.waitForSelector('table');
 
     // 取得 table 元素的 outerHTML
     const tableHTML = await page.$$eval('table', tables => {
