@@ -12,7 +12,8 @@ const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, mil
 const boxscore = async (url) => {
   // 啟動 Puppeteer
   const browser = await puppeteer.launch({
-    headless: 'new',
+    // headless: 'new',
+    headless: false,
     args: [
       "--disable-setuid-sandbox",
       "--no-sandbox",
