@@ -10,29 +10,26 @@ const title = ['PLAYER', 'MIN', 'FGM', 'FGA', 'FG%', '3PM',
 const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 const boxscore = async (url) => {
+  // 啟動 Puppeteer
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+  });
   try {
-    // 啟動 Puppeteer
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-        "--single-process",
-        "--no-zygote",
-      ],
-      executablePath:
-        process.env.NODE_ENV === "production"
-          ? process.env.PUPPETEER_EXECUTABLE_PATH
-          : puppeteer.executablePath(),
-    });
-
     // 開啟新的頁面
     const page = await browser.newPage();
 
     // 前往指定網址
-    await page.goto(url, { waitUntil: 'load', timeout: 0 });
-
-    // await page.waitForNavigation();
+    await page.goto(url, { waitUntil: "domcontentloaded" });
 
     // await delay(3000);
 
@@ -91,14 +88,14 @@ const boxscore = async (url) => {
       });
       returnData.push(result);
     });
-
-    // 關閉瀏覽器
-    await browser.close();
-
     return JSON.stringify(returnData);
   }
   catch (err) {
     console.error(err);
+  }
+  finally {
+    // 關閉瀏覽器
+    await browser.close();
   }
 }
 
