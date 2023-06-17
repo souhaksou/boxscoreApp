@@ -30,7 +30,7 @@ const boxscore = async (url) => {
     const page = await browser.newPage();
 
     // 前往指定網址
-    await page.goto(url);
+    await page.goto(url, { waitUntil: 'load', timeout: 0 });
 
     // await page.waitForNavigation();
 
