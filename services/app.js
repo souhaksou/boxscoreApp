@@ -32,7 +32,7 @@ const boxscore = async (url) => {
     // 前往指定網址
     await page.goto(url);
 
-    await delay(5000);
+    await delay(8000);
 
     // 等待網頁加載完成
     await page.waitForSelector('table');
