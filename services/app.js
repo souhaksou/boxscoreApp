@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
+require("dotenv").config();
 
 const title = ['PLAYER', 'MIN', 'FGM', 'FGA', 'FG%', '3PM',
   '3PA', '3P%', 'FTM', 'FTA', 'FT%', 'OREB',
@@ -12,7 +13,17 @@ const boxscore = async (url) => {
   try {
     // 啟動 Puppeteer
     const browser = await puppeteer.launch({
-      headless: 'new'
+      headless: 'new',
+      args: [
+        "--disable-setuid-sandbox",
+        "--no-sandbox",
+        "--single-process",
+        "--no-zygote",
+      ],
+      executablePath:
+        process.env.NODE_ENV === "production"
+          ? process.env.PUPPETEER_EXECUTABLE_PATH
+          : puppeteer.executablePath(),
     });
 
     // 開啟新的頁面
